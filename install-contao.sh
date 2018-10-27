@@ -18,16 +18,16 @@ services:
      depends_on:
      - db
      volumes:
-     - ./files:/var/www/html/
+     - ./contao:/var/www/html/
      ports:
      - "80:80"
      environment:
-      - WEB_DOCUMENT_ROOT=/var/www/html/contao/web
-      - WEB_ALIAS_DOMAIN=hello.ap
+      - WEB_DOCUMENT_ROOT=/var/www/html/web
+      - WEB_ALIAS_DOMAIN=hello.co
        
-   phpmyadmin2:
+   phpmyadmin-contao:
      image: phpmyadmin/phpmyadmin
-     container_name: phpmyadmin2
+     container_name: phpmyadmin-contao
      depends_on: 
       - db
      restart: always
@@ -40,15 +40,10 @@ services:
 volumes:
     db_data:' > ./docker-compose.yml
 
-mkdir files
-mkdir files/contao
-mkdir files/contao/web
+
+curl -L http://download.contao.org/4.4 | tar -xzp
+mv contao-4* contao
+cd contao/web
+curl https://download.contao.org/contao-manager/stable/contao-manager.phar -o contao-manager.phar.php
 docker-compose up -d
-cd files
-curl -sS https://getcomposer.org/installer | php
-sleep 5 
-rm -rf contao
-docker-compose exec apache bash -c "php /var/www/html/composer.phar create-project contao/managed-edition /var/www/html/contao/ '4.6.*' "
-docker-compose exec apache bash -c "chmod -R 777 /tmp"
-curl https://download.contao.org/contao-manager/stable/contao-manager.phar --output contao/web/contao-manager.phar.php
 echo 'Contao 4 ready.'
